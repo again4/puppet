@@ -1,0 +1,41 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+ExecStart=/usr/local/bin/kube-apiserver \
+  --advertise-address=<%= @primary_ip %> \
+  --allow-privileged=true \
+  --apiserver-count=2 \
+  --audit-log-maxage=30 \
+  --audit-log-maxbackup=3 \
+  --audit-log-maxsize=100 \
+  --audit-log-path=/var/log/audit.log \
+  --authorization-mode=Node,RBAC \
+  --bind-address=0.0.0.0 \
+  --client-ca-file=/var/lib/kubernetes/pki/ca.crt \
+  --enable-admission-plugins=NodeRestriction,ServiceAccount \
+  --enable-bootstrap-token-auth=true \
+  --etcd-cafile=/var/lib/kubernetes/pki/ca.crt \
+  --etcd-certfile=/var/lib/kubernetes/pki/etcd-server.crt \
+  --etcd-keyfile=/var/lib/kubernetes/pki/etcd-server.key \
+  --etcd-servers=https://10.255.205.199:2379,https://10.255.205.212:2379,https://10.255.205.213:2379 \
+  --event-ttl=1h \
+  --encryption-provider-config=/var/lib/kubernetes/encryption-config.yaml \
+  --kubelet-certificate-authority=/var/lib/kubernetes/pki/ca.crt \
+  --kubelet-client-certificate=/var/lib/kubernetes/pki/apiserver-kubelet-client.crt \
+  --kubelet-client-key=/var/lib/kubernetes/pki/apiserver-kubelet-client.key \
+  --runtime-config=api/all=true \
+  --service-account-key-file=/var/lib/kubernetes/pki/service-account.crt \
+  --service-account-signing-key-file=/var/lib/kubernetes/pki/service-account.key \
+  --service-account-issuer=https://<%= @loadbalancer %>:6443 \
+  --service-cluster-ip-range=<%= @service_cidr %> \
+  --service-node-port-range=30000-32767 \
+  --tls-cert-file=/var/lib/kubernetes/pki/kube-apiserver.crt \
+  --tls-private-key-file=/var/lib/kubernetes/pki/kube-apiserver.key \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
